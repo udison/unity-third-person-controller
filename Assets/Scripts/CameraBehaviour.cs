@@ -84,7 +84,8 @@ public class CameraBehaviour : MonoBehaviour
         
         // With smoothness
         // IMPORTANT: when lerping the camera position, the Rigidbody's interpolation setting must be set to Interpolate
-        // or Extrapolate, otherwise will cause a jittering effect on the camera
+        // or Extrapolate, otherwise will cause a jittering effect on the camera caused by the desync between Update()
+        // and physics calculation
         transform.position = Vector3.Lerp(transform.position, cameraAnchor.position, cameraSpeed * Time.deltaTime);
     }
 
