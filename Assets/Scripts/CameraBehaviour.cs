@@ -8,12 +8,16 @@ public class CameraBehaviour : MonoBehaviour
     // [x] 1. Center the camera on player
     // [x] 2. Move the camera around the pivot
     // [x] 3. Smooth?
-    // [ ] 4. Prevent clipping through walls
+    // [x] 4. Prevent clipping through walls
     // [ ] 5. Variable distance
-    // [ ] 6. Prevent not showing player
+    // [x] 6. Prevent not showing player
 
+    [Header("Camera Behaviour")]
+    
     [SerializeField] private float cameraDistance = 15.0f;
     [SerializeField] private Transform cameraAnchor;
+    
+    [Space(10)]
 
     private Camera cam;
 
@@ -35,6 +39,7 @@ public class CameraBehaviour : MonoBehaviour
     {
         RotateCamera();
         FollowAnchor();
+        PreventClipping();
     }
 
     #region Camera Rotation
@@ -87,6 +92,39 @@ public class CameraBehaviour : MonoBehaviour
         // or Extrapolate, otherwise will cause a jittering effect on the camera caused by the desync between Update()
         // and physics calculation
         transform.position = Vector3.Lerp(transform.position, cameraAnchor.position, cameraSpeed * Time.deltaTime);
+    }
+
+    #endregion
+
+    #region Clipping Prevention
+
+    [Header("Clipping Prevention")]
+    [SerializeField] private LayerMask cameraMask;
+
+    private float clippingPreventOffset = 0.2f;
+
+    private void PreventClipping()
+    {
+        // Raycast from anchor to camera position
+        Ray ray = new Ray(transform.position, -transform.forward);
+        RaycastHit hit;
+
+        // If it collides with something, camera position will be the point of RaycastHit
+        if (Physics.Raycast(ray, out hit, cameraDistance, cameraMask))
+        {
+            Debug.DrawRay(transform.position, -transform.forward * hit.distance, Color.red);
+
+            cam.transform.localPosition = new Vector3(0, 0, -hit.distance + clippingPreventOffset);
+        }
+
+        // Else, camera position will be offset by the cameraDistance variable
+        else
+        {
+            Debug.DrawRay(transform.position, -transform.forward * cameraDistance, Color.green);
+            
+            cam.transform.localPosition = new Vector3(0, 0, -cameraDistance);
+        }
+
     }
 
     #endregion
